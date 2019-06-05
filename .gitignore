@@ -13,4 +13,6 @@ install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
 
+bin/
+
 # End of https://www.gitignore.io/api/cmake
