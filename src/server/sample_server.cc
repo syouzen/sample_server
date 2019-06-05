@@ -1,4 +1,5 @@
-#include "sample_server.h"
+#include "server/sample_server.h"
+#include "message_handler/message_handler.h"
 
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -12,8 +13,12 @@
 static const char* SOCKET_PATH = "/tmp/sample_server.socket";
 const int BUFFER_SIZE = 128;
 
-SampleServer::SampleServer() : server_fd(-1), client_fd(-1) {}
-SampleServer::~SampleServer() {}
+SampleServer::SampleServer() : server_fd(-1), client_fd(-1) {
+  message_handler = new MessageHandler;
+}
+SampleServer::~SampleServer() {
+  delete message_handler;
+}
 
 void SampleServer::OpenServer() {
   bool res;

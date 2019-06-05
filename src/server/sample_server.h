@@ -1,5 +1,6 @@
 #pragma once
 
+class MessageHandler;
 class SampleServer {
  public:
   SampleServer();
@@ -13,4 +14,5 @@ class SampleServer {
  private:
   int server_fd;
   int client_fd;
+  MessageHandler* message_handler;
 };

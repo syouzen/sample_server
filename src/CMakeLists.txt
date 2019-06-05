@@ -5,10 +5,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
+include_directories(
+  ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
 set(TARGET sample_server)
 set(SOURCES 
   server/main.cc
-  server/sample_server.cc  
+  server/sample_server.cc
+
+  message_handler/message_handler.cc
+  protocol/message.cc
 )
 set(OUTPUT_DIR )
 
