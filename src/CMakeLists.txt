@@ -15,7 +15,10 @@ set(SOURCES
   server/sample_server.cc
 
   message_handler/message_handler.cc
-  protocol/message.cc
+
+  protocol/protocol_utils.cc
+
+  service/message_service.cc
 )
 set(OUTPUT_DIR )
 

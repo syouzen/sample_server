@@ -1,7 +1,7 @@
 #include "sample_server.h"
 
 int main(int argc, char* argv[]) {
-  SampleServer ss;
+  Server::SampleServer ss;
 
   ss.OpenServer();
 

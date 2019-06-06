@@ -1,14 +1,23 @@
 #pragma once
 
+namespace Protocol {
+
 struct Message;
+
+}
+
+namespace Handler {
+
 class MessageHandler {
  public:
   MessageHandler();
   ~MessageHandler();
 
  public:
-  bool HandleMessage(Message* message);
+  bool HandleMessage(Protocol::Message* message);
 
  private:
-  void HandleDefaultMessage(Message* message);
+  void HandlePrintHelloWorld(Protocol::Message* message);
 };
+
+}  // namespace Handler

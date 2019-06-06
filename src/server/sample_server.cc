@@ -1,5 +1,7 @@
 #include "server/sample_server.h"
 #include "message_handler/message_handler.h"
+#include "protocol/protocol.h"
+#include "protocol/protocol_utils.h"
 
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -10,18 +12,18 @@
 #include <cstdio>
 #include <cstring>
 
+namespace Server {
+
 static const char* SOCKET_PATH = "/tmp/sample_server.socket";
-const int BUFFER_SIZE = 128;
 
 SampleServer::SampleServer() : server_fd(-1), client_fd(-1) {
-  message_handler = new MessageHandler;
+  message_handler = new Handler::MessageHandler;
 }
 SampleServer::~SampleServer() {
   delete message_handler;
 }
 
 void SampleServer::OpenServer() {
-  bool res;
   struct sockaddr_un server_addr, client_addr;
 
   server_fd = socket(PF_LOCAL, SOCK_STREAM, 0);
@@ -33,13 +35,11 @@ void SampleServer::OpenServer() {
   server_addr = {.sun_family = AF_LOCAL};
   strcpy(server_addr.sun_path, SOCKET_PATH);
 
-  res = bind(server_fd, (struct sockaddr*)&server_addr, sizeof(server_addr));
-  if (res == -1) {
+  if (bind(server_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
     printf("[Server] Failed to bind.\n");
   }
 
-  res = listen(server_fd, 5);
-  if (res == -1) {
+  if (listen(server_fd, 5) < 0) {
     printf("[Server] Failed to listen.\n");
   }
 
@@ -56,11 +56,15 @@ void SampleServer::OpenServer() {
 }
 
 void SampleServer::ReceiveMessage() {
-  int msg_size;
-  int buffer[BUFFER_SIZE];
+  Protocol::Message* msg = nullptr;
+  if (Protocol::ReceiveMsg(client_fd, nullptr, 0, (char*)msg, sizeof(msg)) == -1) {
+    printf("[Server] Failed to receive message.\n");
+    return;
+  }
 
-  msg_size = read(client_fd, buffer, 1024);
-  write(client_fd, buffer, msg_size);
+  if (message_handler->HandleMessage(msg) == -1) {
+    printf("[Server] Invaild receive message.\n");
+  }
 }
 
 void SampleServer::CloseCurrentClient() {
@@ -70,3 +74,5 @@ void SampleServer::CloseCurrentClient() {
     printf("[Server] Client closed.\n");
   }
 }
+
+}  // namespace Server
