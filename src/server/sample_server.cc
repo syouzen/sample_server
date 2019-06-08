@@ -26,6 +26,8 @@ SampleServer::~SampleServer() {
 void SampleServer::OpenServer() {
   struct sockaddr_un server_addr, client_addr;
 
+  unlink(SOCKET_PATH);
+
   server_fd = socket(PF_LOCAL, SOCK_STREAM, 0);
   if (server_fd == -1) {
     printf("[Server] Can't open stream socket.\n");
@@ -56,13 +58,13 @@ void SampleServer::OpenServer() {
 }
 
 void SampleServer::ReceiveMessage() {
-  Protocol::Message* msg = nullptr;
-  if (Protocol::ReceiveMsg(client_fd, nullptr, 0, (char*)msg, sizeof(msg)) == -1) {
+  Protocol::Message msg;
+  if (Protocol::ReceiveMsg(client_fd, nullptr, 0, (void*)&msg, Protocol::MAX_MESSAGE_SIZE) == -1) {
     printf("[Server] Failed to receive message.\n");
     return;
   }
 
-  if (message_handler->HandleMessage(msg) == -1) {
+  if (!message_handler->HandleMessage(&msg)) {
     printf("[Server] Invaild receive message.\n");
   }
 }

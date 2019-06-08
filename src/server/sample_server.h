@@ -15,9 +15,7 @@ class SampleServer {
 
  public:
   void OpenServer();
-
   void ReceiveMessage();
-
   void CloseCurrentClient();
 
  private:

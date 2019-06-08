@@ -3,7 +3,7 @@
 namespace Protocol {
 
 struct Message {
-  char* raws;
+  int size;
   int type;
 };
 
@@ -15,5 +15,7 @@ struct MessagePrintHelloWorld {
 enum message_type {
   MESSAGE_PRINT_HELLO_WORLD,
 };
+
+const int MAX_MESSAGE_SIZE = sizeof(MessagePrintHelloWorld);
 
 }  // namespace Protocol

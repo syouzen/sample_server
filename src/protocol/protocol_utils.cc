@@ -21,12 +21,12 @@ typedef union ControlMessageFD {
   char data[CMSG_SPACE(sizeof(int) * MAX_FD_COUNT)];
 } ControlMessageFD;
 
-int ReceiveMsg(int sender_fd, int* fds, size_t fds_size, char* buf, size_t buf_size) {
+int ReceiveMsg(int sender_fd, int* fds, size_t fds_size, void* buf, size_t buf_size) {
   struct iovec vec;
   struct msghdr msghdr;
   ControlMessageFD cmsg;
 
-  vec.iov_base = (void*)buf;
+  vec.iov_base = buf;
   vec.iov_len = buf_size;
 
   msghdr.msg_name = NULL;
@@ -43,27 +43,30 @@ int ReceiveMsg(int sender_fd, int* fds, size_t fds_size, char* buf, size_t buf_s
     return -1;
   }
 
-  const struct cmsghdr* ctrl = (CMSG_FIRSTHDR(&msghdr));
-  if (ctrl == NULL) {
-    printf("[Protocol] No control message header.\n");
-    return -1;
+  if (fds) {
+    const struct cmsghdr* ctrl = (CMSG_FIRSTHDR(&msghdr));
+    if (ctrl == NULL) {
+      printf("[Protocol] No control message header.\n");
+      return -1;
+    }
+
+    if (ctrl->cmsg_level != SOL_SOCKET || ctrl->cmsg_type != SCM_RIGHTS) {
+      printf("[Protocol] Invalid control message.\n");
+      return -1;
+    }
+
+    memcpy(fds, CMSG_DATA(ctrl), fds_size);
   }
 
-  if (ctrl->cmsg_level != SOL_SOCKET || ctrl->cmsg_type != SCM_RIGHTS) {
-    printf("[Protocol] Invalid control message.\n");
-    return -1;
-  }
-
-  memcpy(fds, CMSG_DATA(ctrl), fds_size);
   return 0;
 }
 
-int SendMsg(int receiver_fd, int* fds, size_t fds_size, const char* buf, size_t buf_size) {
+int SendMsg(int receiver_fd, int* fds, size_t fds_size, void* buf, size_t buf_size) {
   struct iovec vec;
   struct msghdr msghdr;
   ControlMessageFD cmsg;
 
-  vec.iov_base = (void*)buf;
+  vec.iov_base = buf;
   vec.iov_len = buf_size;
 
   msghdr.msg_name = NULL;
@@ -92,4 +95,4 @@ int SendMsg(int receiver_fd, int* fds, size_t fds_size, const char* buf, size_t 
   return 0;
 }
 
-}  // namespace protocol
+}  // namespace Protocol
